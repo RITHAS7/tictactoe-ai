@@ -90,25 +90,20 @@ function getMidAIMove() {
   if (O_toWin !== null) {
     for (let posn of O_toWin[0]) {
       if (currentBoard[posn] === null) {
-        console.log('win')
         return posn
       }
     }
   } else if (X_toWin !== null) {
     for (let posn of X_toWin[0]) {
       if (currentBoard[posn] === null) {
-        console.log('block')
         return posn
       }
     }
   } else if (currentBoard[4] === null){
-    console.log('center')
     return 4
   } else if (corner !== null) {
-    console.log('corner')
     return corner
   } else {
-    console.log('sides')
     return getEasyAIMove()
   }
 }
@@ -186,16 +181,23 @@ function getMidAIMove() {
     }
   },[history])
 
-  // function undoMove() {
-  //   if (history.length === 0 || history.length === 1) {
-  //     return;
-  //   }
-  //   const newHistory = history.slice(0,-1)
-  //   setHistory(newHistory)
-  //   setXIsNext(!xIsNext)
-  //   setWinColor(Array(9).fill(null))
-  //   setHeading(`Turn: ${xIsNext ? "O" : "X"}`)
-  // }
+  function undoMove() {
+    if (history.length === 0 || history.length === 1) {
+      return;
+    }
+    if (!xIsNext) {
+      const newHistory = history.slice(0,-1)
+      setHistory(newHistory)
+      setXIsNext(!xIsNext)
+      setWinColor(Array(9).fill(null))
+      setHeading('Your Turn')
+    } else {
+      const newHistory = history.slice(0,-2)
+      setHistory(newHistory)
+      setWinColor(Array(9).fill(null))
+      setHeading(`Your Turn`)
+    }
+  }
 
   function handleClick(i) {
     if (history[history.length - 1][i] || calculateWinner(history[history.length - 1]).winner !== null) {
@@ -241,7 +243,7 @@ function getMidAIMove() {
         <Square value={history[history.length - 1][8]} setSquareClick={()=>xIsNext && handleClick(8)} textColor={winColor[8] ? 'green' : '#1a1a1a'}></Square>
       </div>
       <button onClick={resetGame} className='reset mt-4 mr-2 border-2 h-15 w-30 rounded-3xl'>Reset</button>
-      {/* <button onClick={undoMove} className='undo mt-4 ml-2 border-2 h-15 w-30 rounded-3xl'>Undo</button> */}
+      <button onClick={undoMove} className='undo mt-4 ml-2 border-2 h-15 w-30 rounded-3xl'>Undo</button>
     </>
   );
 
