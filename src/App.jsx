@@ -212,11 +212,11 @@ function getMidAIMove() {
     if (result.winner === null) {
       setHeading(!xIsNext ? 'Your Turn':'AI thinking..')
     } else if (result.winner !== "Draw") {
-      setHeading(`Winner: ${result.winner}`)
       const newWinColor = Array(9).fill(null)
       result.lines.forEach(i => newWinColor[i] = true)
       setWinColor(newWinColor)
       result.winner === "X" ? headRef.current.classList.add('win') : headRef.current.classList.add('lost')
+      result.winner === "X" ? setHeading('You won!') : setHeading('You lost')
     } else if (result.winner === "Draw") {
       setHeading("It's a Draw")
       headRef.current.classList.add('draw')
