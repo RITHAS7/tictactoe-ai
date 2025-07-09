@@ -197,6 +197,9 @@ function getMidAIMove() {
       setWinColor(Array(9).fill(null))
       setHeading(`Your Turn`)
     }
+    headRef.current.classList.contains('win') && headRef.current.classList.remove('win')
+    headRef.current.classList.contains('lost') && headRef.current.classList.remove('lost') 
+    headRef.current.classList.contains('draw') && headRef.current.classList.remove('draw') 
   }
 
   function handleClick(i) {
