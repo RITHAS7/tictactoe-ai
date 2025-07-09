@@ -27,10 +27,10 @@ export default function App() {
   const [difficulty, setDifficulty] = useState('easy')
   const headRef = useRef()
 
-  function resetGame() {
+  function resetGame(difficulty) {
     setHistory([Array(9).fill(null)])
     setWinColor(Array(9).fill(null))
-    setHeading("Your Turn")
+    difficulty === 'two' ? setHeading("X's Turn") : setHeading("Your Turn")
     setXIsNext(true)
     headRef.current.classList.contains('win') && headRef.current.classList.remove('win')
     headRef.current.classList.contains('lost') && headRef.current.classList.remove('lost') 
@@ -165,7 +165,7 @@ function getMidAIMove() {
     let currentBoard = history[history.length - 1]
     let boardIsFull = currentBoard.every(Boolean)
 
-    if (!xIsNext && !calculateWinner(currentBoard).winner && !boardIsFull) {
+    if (!xIsNext && !calculateWinner(currentBoard).winner && !boardIsFull && difficulty !== 'two') {
       setTimeout(()=>{
         if (difficulty === 'easy') {
           const move = getEasyAIMove()
@@ -185,12 +185,12 @@ function getMidAIMove() {
     if (history.length === 0 || history.length === 1) {
       return;
     }
-    if (!xIsNext) {
+    if (!xIsNext || difficulty === 'two') {
       const newHistory = history.slice(0,-1)
       setHistory(newHistory)
       setXIsNext(!xIsNext)
       setWinColor(Array(9).fill(null))
-      setHeading('Your Turn')
+      difficulty === 'two' ? setHeading(`${xIsNext ? "X's Turn":"O's Turn"}`) : setHeading('Your Turn')
     } else {
       const newHistory = history.slice(0,-2)
       setHistory(newHistory)
@@ -213,13 +213,29 @@ function getMidAIMove() {
     setHistory([...history,nextSquares])
     let result = calculateWinner(nextSquares)
     if (result.winner === null) {
-      setHeading(!xIsNext ? 'Your Turn':'AI thinking..')
+      if (difficulty === 'two') {
+        setHeading(!xIsNext ? "X's Turn":"O's Turn")
+      } else {
+        setHeading(!xIsNext ? 'Your Turn':'AI thinking..')
+      }
     } else if (result.winner !== "Draw") {
       const newWinColor = Array(9).fill(null)
-      result.lines.forEach(i => newWinColor[i] = true)
-      setWinColor(newWinColor)
-      result.winner === "X" ? headRef.current.classList.add('win') : headRef.current.classList.add('lost')
-      result.winner === "X" ? setHeading('You won!') : setHeading('You lost')
+      if (difficulty === 'two') {
+        result.lines.forEach(i => newWinColor[i] = 'green')
+        setWinColor(newWinColor)
+        result.winner === "X" ? headRef.current.classList.add('win') : headRef.current.classList.add('win')
+        result.winner === "X" ? setHeading('X won!') : setHeading('O won!')
+      } else {
+        if (result.winner === "X") {
+          result.lines.forEach(i => newWinColor[i] = 'green')
+          setWinColor(newWinColor)
+        } else {
+          result.lines.forEach(i => newWinColor[i] = 'red')
+          setWinColor(newWinColor)
+        }
+        result.winner === "X" ? headRef.current.classList.add('win') : headRef.current.classList.add('lost')
+        result.winner === "X" ? setHeading('You won!') : setHeading('You lost!')
+      }
     } else if (result.winner === "Draw") {
       setHeading("It's a Draw")
       headRef.current.classList.add('draw')
@@ -231,19 +247,19 @@ function getMidAIMove() {
       <h1 className='pb-4' ref={headRef}>{heading}</h1>
       <Dropdown resetGame={resetGame} difficulty={difficulty} setDifficulty={setDifficulty}></Dropdown>
       <div className='board-row grid grid-cols-3'>
-        <Square value={history[history.length - 1][0]} setSquareClick={()=>xIsNext && handleClick(0)} textColor={winColor[0] ? 'green' : '#1a1a1a'}></Square>
-        <Square value={history[history.length - 1][1]} setSquareClick={()=>xIsNext && handleClick(1)} textColor={winColor[1] ? 'green' : '#1a1a1a'}></Square>
-        <Square value={history[history.length - 1][2]} setSquareClick={()=>xIsNext && handleClick(2)} textColor={winColor[2] ? 'green' : '#1a1a1a'}></Square>
+        <Square value={history[history.length - 1][0]} setSquareClick={()=>(xIsNext || difficulty === 'two') && handleClick(0)} textColor={winColor[0] !== null ? winColor[0] : '#1a1a1a'}></Square>
+        <Square value={history[history.length - 1][1]} setSquareClick={()=>(xIsNext || difficulty === 'two') && handleClick(1)} textColor={winColor[1] !== null ? winColor[1] : '#1a1a1a'}></Square>
+        <Square value={history[history.length - 1][2]} setSquareClick={()=>(xIsNext || difficulty === 'two') && handleClick(2)} textColor={winColor[2] !== null ? winColor[2] : '#1a1a1a'}></Square>
       </div>
       <div className='board-row grid grid-cols-3'>
-        <Square value={history[history.length - 1][3]} setSquareClick={()=>xIsNext && handleClick(3)} textColor={winColor[3] ? 'green' : '#1a1a1a'}></Square>
-        <Square value={history[history.length - 1][4]} setSquareClick={()=>xIsNext && handleClick(4)} textColor={winColor[4] ? 'green' : '#1a1a1a'}></Square>
-        <Square value={history[history.length - 1][5]} setSquareClick={()=>xIsNext && handleClick(5)} textColor={winColor[5] ? 'green' : '#1a1a1a'}></Square>
+        <Square value={history[history.length - 1][3]} setSquareClick={()=>(xIsNext || difficulty === 'two') && handleClick(3)} textColor={winColor[3] !== null ? winColor[3] : '#1a1a1a'}></Square>
+        <Square value={history[history.length - 1][4]} setSquareClick={()=>(xIsNext || difficulty === 'two') && handleClick(4)} textColor={winColor[4] !== null ? winColor[4] : '#1a1a1a'}></Square>
+        <Square value={history[history.length - 1][5]} setSquareClick={()=>(xIsNext || difficulty === 'two') && handleClick(5)} textColor={winColor[5] !== null ? winColor[5] : '#1a1a1a'}></Square>
       </div>
       <div className='board-row grid grid-cols-3'>
-        <Square value={history[history.length - 1][6]} setSquareClick={()=>xIsNext && handleClick(6)} textColor={winColor[6] ? 'green' : '#1a1a1a'}></Square>
-        <Square value={history[history.length - 1][7]} setSquareClick={()=>xIsNext && handleClick(7)} textColor={winColor[7] ? 'green' : '#1a1a1a'}></Square>
-        <Square value={history[history.length - 1][8]} setSquareClick={()=>xIsNext && handleClick(8)} textColor={winColor[8] ? 'green' : '#1a1a1a'}></Square>
+        <Square value={history[history.length - 1][6]} setSquareClick={()=>(xIsNext || difficulty === 'two') && handleClick(6)} textColor={winColor[6] !== null ? winColor[6] : '#1a1a1a'}></Square>
+        <Square value={history[history.length - 1][7]} setSquareClick={()=>(xIsNext || difficulty === 'two') && handleClick(7)} textColor={winColor[7] !== null ? winColor[7] : '#1a1a1a'}></Square>
+        <Square value={history[history.length - 1][8]} setSquareClick={()=>(xIsNext || difficulty === 'two') && handleClick(8)} textColor={winColor[8] !== null ? winColor[8] : '#1a1a1a'}></Square>
       </div>
       <button onClick={resetGame} className='reset mt-4 mr-2 border-2 h-15 w-30 rounded-3xl'>Reset</button>
       <button onClick={undoMove} className='undo mt-4 ml-2 border-2 h-15 w-30 rounded-3xl'>Undo</button>
